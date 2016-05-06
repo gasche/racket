@@ -1603,8 +1603,13 @@ typedef Scheme_Object Scheme_Located_Name;
    such as the one carried by function closures:
      name or (vector name src line col pos span generated?) */
 
+#define APPNAME
+
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
+#ifdef APPNAME
+  Scheme_Located_Name *name;
+#endif
   mzshort num_args; /* doesn't include rator, so arguments are at args[1]...args[num_args] */
   Scheme_Object *args[mzFLEX_ARRAY_DECL];
   /* After array of f & args, array of chars for eval type */
@@ -1645,12 +1650,18 @@ enum {
 
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
+#ifdef APPNAME
+  Scheme_Located_Name *name;
+#endif
   Scheme_Object *rator;
   Scheme_Object *rand;
 } Scheme_App2_Rec;
 
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
+#ifdef APPNAME
+  Scheme_Located_Name *name;
+#endif
   Scheme_Object *rator;
   Scheme_Object *rand1;
   Scheme_Object *rand2;

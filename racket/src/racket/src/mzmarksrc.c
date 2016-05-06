@@ -103,6 +103,7 @@ app_rec {
   int i = r->num_args + 1;
   while (i--) 
     gcMARK2(r->args[i], gc);
+  gcMARK2(r->name, gc);
 
  size:
   gcBYTES_TO_WORDS((sizeof(Scheme_App_Rec) 
@@ -113,6 +114,7 @@ app_rec {
 app2_rec {
  mark:
   Scheme_App2_Rec *r = (Scheme_App2_Rec *)p;
+  gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand, gc);
 
@@ -123,6 +125,7 @@ app2_rec {
 app3_rec {
  mark:
   Scheme_App3_Rec *r = (Scheme_App3_Rec *)p;
+  gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand1, gc);
   gcMARK2(r->rand2, gc);

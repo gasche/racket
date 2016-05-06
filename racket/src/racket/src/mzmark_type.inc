@@ -453,6 +453,7 @@ static int app_rec_MARK(void *p, struct NewGC *gc) {
   int i = r->num_args + 1;
   while (i--) 
     gcMARK2(r->args[i], gc);
+  gcMARK2(r->name, gc);
 
 # ifdef GC_NO_SIZE_NEEDED_FROM_PROCS
   return 0;
@@ -472,6 +473,7 @@ static int app_rec_FIXUP(void *p, struct NewGC *gc) {
   int i = r->num_args + 1;
   while (i--) 
     gcFIXUP2(r->args[i], gc);
+  gcFIXUP2(r->name, gc);
 
 # ifdef GC_NO_SIZE_NEEDED_FROM_PROCS
   return 0;
@@ -499,6 +501,7 @@ static int app2_rec_SIZE(void *p, struct NewGC *gc) {
 static int app2_rec_MARK(void *p, struct NewGC *gc) {
 #ifndef GC_NO_MARK_PROCEDURE_NEEDED
   Scheme_App2_Rec *r = (Scheme_App2_Rec *)p;
+  gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand, gc);
 
@@ -514,6 +517,7 @@ static int app2_rec_MARK(void *p, struct NewGC *gc) {
 static int app2_rec_FIXUP(void *p, struct NewGC *gc) {
 #ifndef GC_NO_FIXUP_PROCEDURE_NEEDED
   Scheme_App2_Rec *r = (Scheme_App2_Rec *)p;
+  gcFIXUP2(r->name, gc);
   gcFIXUP2(r->rator, gc);
   gcFIXUP2(r->rand, gc);
 
@@ -541,6 +545,7 @@ static int app3_rec_SIZE(void *p, struct NewGC *gc) {
 static int app3_rec_MARK(void *p, struct NewGC *gc) {
 #ifndef GC_NO_MARK_PROCEDURE_NEEDED
   Scheme_App3_Rec *r = (Scheme_App3_Rec *)p;
+  gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand1, gc);
   gcMARK2(r->rand2, gc);
@@ -557,6 +562,7 @@ static int app3_rec_MARK(void *p, struct NewGC *gc) {
 static int app3_rec_FIXUP(void *p, struct NewGC *gc) {
 #ifndef GC_NO_FIXUP_PROCEDURE_NEEDED
   Scheme_App3_Rec *r = (Scheme_App3_Rec *)p;
+  gcFIXUP2(r->name, gc);
   gcFIXUP2(r->rator, gc);
   gcFIXUP2(r->rand1, gc);
   gcFIXUP2(r->rand2, gc);
