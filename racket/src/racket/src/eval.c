@@ -2661,6 +2661,10 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
   // from somewhere else.  Also sometimes it holds NULL and I wonder
   // whether that can crash the GC.
 
+#if 1
+#define EVALAPPNAME
+#endif
+
 #ifdef DO_STACK_CHECK
 # define SCHEME_CURRENT_PROCESS p
 # include "mzstkchk.h"
@@ -2942,7 +2946,8 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	}
       }
 
-      name_and_loc = data->name;
+      if (name_and_loc == NULL)
+          name_and_loc = data->name;
 
       obj = data->body;
 
@@ -3280,6 +3285,10 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	  app = (Scheme_App_Rec *)obj;
 	  num_rands = app->num_args;
 	  
+          #ifdef EVALAPPNAME
+          name_and_loc = GETNAME(app);
+          #endif
+
 	  d_evals = (sizeof(Scheme_App_Rec) 
                      + ((num_rands + 1 - mzFLEX_DELTA) * sizeof(Scheme_Object *)));
 #ifndef MZ_XFORM
@@ -3379,6 +3388,10 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 
 	  app = (Scheme_App2_Rec *)obj;
 	  
+          #ifdef EVALAPPNAME
+          name_and_loc = GETNAME(app);
+          #endif
+
 	  obj = app->rator;
 	  flags = SCHEME_APPN_FLAGS(app);
 
@@ -3457,6 +3470,10 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	  short flags;
 
 	  app = (Scheme_App3_Rec *)obj;
+
+          #ifdef EVALAPPNAME
+          name_and_loc = GETNAME(app);
+          #endif
 	  
 	  obj = app->rator;
 	  flags = SCHEME_APPN_FLAGS(app);
