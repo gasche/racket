@@ -3027,7 +3027,7 @@ static void free_incremental_admin_pages(NewGC *gc)
 /*                                                                           */
 /* In many ways, the GC_mark2() function is the heart of the
    collector, because it handles a pointer that has been discovered
-   during traversal. The mark function adjusts th ebits of a newly
+   during traversal. The mark function adjusts the bits of a newly
    reached object and/or copies a generation-0 object out of the
    nursery and into a generation-1 or generation-1/2 page.
 
