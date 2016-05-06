@@ -1604,6 +1604,14 @@ typedef Scheme_Object Scheme_Located_Name;
      name or (vector name src line col pos span generated?) */
 
 #define APPNAME
+#ifdef APPNAME
+#define GETNAME(app) (app)->name
+#define SETNAME(app, n) ((app)->name = (n))
+#else
+#define GETNAME(app) NULL
+#define SETNAME(app, n) ((void)0)
+#endif
+#define GHOSTNAME scheme_null
 
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
@@ -3291,7 +3299,7 @@ Scheme_Object *scheme_optimize_expr(Scheme_Object *, Optimize_Info *, int contex
 #define scheme_optimize_tail_context(c)   scheme_optimize_result_context(c) 
 
 Scheme_Object *scheme_optimize_apply_values(Scheme_Object *f, Scheme_Object *e, 
-                                            Optimize_Info *info,
+                                            Scheme_Located_Name *name, Optimize_Info *info,
                                             int e_single_result,
                                             int context);
 
@@ -3532,7 +3540,7 @@ int scheme_native_closure_is_single_result(Scheme_Object *rator);
 
 int scheme_get_eval_type(Scheme_Object *obj);
 
-Scheme_Object *scheme_make_application(Scheme_Object *v, Optimize_Info *info);
+Scheme_Object *scheme_make_application(Scheme_Object *v, Scheme_Located_Name *name, Optimize_Info *info);
 Scheme_Object *scheme_try_apply(Scheme_Object *f, Scheme_Object *args, Optimize_Info *info);
 int scheme_is_foldable_prim(Scheme_Object *f);
 int scheme_eq_testable_constant(Scheme_Object *v);

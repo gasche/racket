@@ -111,7 +111,10 @@ void scheme_init_resolve()
 /*                            applications                                */
 /*========================================================================*/
 
-static Scheme_Object *check_converted_rator(Scheme_Object *rator, Resolve_Info *info, Scheme_Object **new_rator,
+static Scheme_Object *check_converted_rator(Scheme_Object *rator,
+                                            Scheme_Located_Name *name,
+                                            Resolve_Info *info,
+                                            Scheme_Object **new_rator,
                                             int orig_arg_cnt, int *_rdelta)
 /* Check whether `rator` refers to a function that has been lifted and
    changed to accept extra arguments, in which case the application
@@ -153,6 +156,7 @@ static Scheme_Object *check_converted_rator(Scheme_Object *rator, Resolve_Info *
         else {
           Scheme_App2_Rec *app;
           app = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
+          SETNAME(app, name);
           app->iso.so.type = scheme_application2_type;
           app->rator = scheme_make_arity_at_least;
           app->rand = arity;
@@ -200,7 +204,8 @@ static Scheme_Object *resolve_application(Scheme_Object *o, Resolve_Info *orig_i
     /* Check whether this is an application of a converted closure: */
     Scheme_Object *additions = NULL, *rator;
     int rdelta;
-    additions = check_converted_rator(app->args[0], orig_info, &rator, n - 1, &rdelta);
+    additions = check_converted_rator(app->args[0], GETNAME(app),
+                                      orig_info, &rator, n - 1, &rdelta);
     if (additions) {
       /* Expand application with m arguments */
       Scheme_App_Rec *app2;
@@ -278,7 +283,8 @@ static Scheme_Object *resolve_application2(Scheme_Object *o, Resolve_Info *orig_
     /* Check whether this is an application of a converted closure: */
     Scheme_Object *additions = NULL, *rator;
     int rdelta;
-    additions = check_converted_rator(app->rator, orig_info, &rator, 1, &rdelta);
+    additions = check_converted_rator(app->rator, app->name,
+                                      orig_info, &rator, 1, &rdelta);
     if (additions) {
       int m;
       m = SCHEME_VEC_SIZE(additions) - 1;
@@ -371,7 +377,8 @@ static Scheme_Object *resolve_application3(Scheme_Object *o, Resolve_Info *orig_
     /* Check whether this is an application of a converted closure: */
     Scheme_Object *additions = NULL, *rator;
     int rdelta;
-    additions = check_converted_rator(app->rator, orig_info, &rator, 2, &rdelta);
+    additions = check_converted_rator(app->rator, app->name,
+                                      orig_info, &rator, 2, &rdelta);
     if (additions) {
       int m, i;
       m = SCHEME_VEC_SIZE(additions) - 1;
@@ -3987,6 +3994,7 @@ static Scheme_Object *unresolve_let_value(Scheme_Let_Value *lv, Unresolve_Info *
   if (var->is_ref_arg) {
     Scheme_App2_Rec *app2;
     app2 = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
+    SETNAME(app2, GHOSTNAME);
     app2->iso.so.type = scheme_application2_type;
     app2->rator = (Scheme_Object *)var;
     app2->rand = val;
@@ -4041,15 +4049,18 @@ static Scheme_Object *maybe_unresolve_app_refs(Scheme_Object *rator,
       if (lam->num_params != app->num_args)
         return NULL;
       new_app = scheme_malloc_application(app->num_args + 1);
+      SETNAME(new_app, GETNAME(app));
     } else if (app2) {
       if (lam->num_params != 1)
         return NULL;
       new_app2 = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
+      SETNAME(new_app2, GETNAME(app2));
       new_app2->iso.so.type = scheme_application2_type;
     } else {
       if (lam->num_params != 2)
         return NULL;
       new_app3 = MALLOC_ONE_TAGGED(Scheme_App3_Rec);
+      SETNAME(new_app3, GETNAME(app3));
       new_app3->iso.so.type = scheme_application3_type;
     }
 

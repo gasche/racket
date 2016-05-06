@@ -4023,7 +4023,9 @@ int scheme_is_foldable_prim(Scheme_Object *f)
   return 0;
 }
 
-Scheme_Object *scheme_make_application(Scheme_Object *v, Optimize_Info *info)
+Scheme_Object *scheme_make_application(Scheme_Object *v,
+                                       Scheme_Located_Name *name,
+                                       Optimize_Info *info)
 {
   Scheme_Object *o;
   int i, nv;
@@ -4062,6 +4064,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v, Optimize_Info *info)
     Scheme_App2_Rec *app;
 
     app = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
+    SETNAME(app, name);
     app->iso.so.type = scheme_application2_type;
 
     app->rator = SCHEME_CAR(v);
@@ -4073,6 +4076,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v, Optimize_Info *info)
     Scheme_App3_Rec *app;
 
     app = MALLOC_ONE_TAGGED(Scheme_App3_Rec);
+    SETNAME(app, name);
     app->iso.so.type = scheme_application3_type;
 
     app->rator = SCHEME_CAR(v);
@@ -4086,6 +4090,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v, Optimize_Info *info)
     Scheme_App_Rec *app;
 
     app = scheme_malloc_application(n);
+    SETNAME(app, name);
     
     for (i = 0; i < n; i++, v = SCHEME_CDR(v)) {
       app->args[i] = SCHEME_CAR(v);
@@ -4116,6 +4121,8 @@ Scheme_App_Rec *scheme_malloc_application(int n)
             + n * sizeof(char));
     app = (Scheme_App_Rec *)scheme_malloc_tagged(size);
   }
+
+  SETNAME(app, NULL); // name will be set by the caller
 
   app->iso.so.type = scheme_application_type;
 
@@ -4208,6 +4215,7 @@ static Scheme_Object *compile_application(Scheme_Object *form, Scheme_Comp_Env *
 					  Scheme_Compile_Info *rec, int drec)
 {
   Scheme_Object *result, *rator;
+  Scheme_Located_Name *name;
   int len;
 
   form = scheme_stx_taint_disarm(form, NULL);
@@ -4220,9 +4228,10 @@ static Scheme_Object *compile_application(Scheme_Object *form, Scheme_Comp_Env *
   env->value_name = NULL;
 
   scheme_compile_rec_done_local(rec, drec);
+  name = scheme_build_closure_name(form, env);
   form = inner_compile_list(form, scheme_no_defines(env), rec, drec, 1);
 
-  result = scheme_make_application(form, NULL);
+  result = scheme_make_application(form, name, NULL);
 
   /* Record which application this is for a variable that is used only in
      application positions. */

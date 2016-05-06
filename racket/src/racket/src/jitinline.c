@@ -2507,6 +2507,7 @@ int scheme_generate_inlined_binary(mz_jit_state *jitter, Scheme_App3_Rec *app, i
     Scheme_App_Rec *app2;
     mz_rs_sync();
     app2 = scheme_malloc_application(3);
+    app2->name = GHOSTNAME;
     app2->args[0] = app->rator;
     app2->args[1] = app->rand1;
     app2->args[2] = app->rand2;

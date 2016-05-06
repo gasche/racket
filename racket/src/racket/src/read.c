@@ -5411,6 +5411,7 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
 	Scheme_App2_Rec *app;
 
 	app = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
+        SETNAME(app, scheme_null); /* TODO */
 	app->iso.so.type = scheme_application2_type;
 
 	v = read_compact(port, 1);
