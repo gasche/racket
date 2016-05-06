@@ -2654,6 +2654,13 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
   MZ_MARK_STACK_TYPE pmstack = -1;
 # define p scheme_current_thread
 
+  GC_CAN_IGNORE Scheme_Located_Name *name_and_loc = NULL;
+  // REVIEW TODO: is it ok to GC_CAN_IGNORE name_and_loc?  My
+  // understanding is that as we only assign to this variable data
+  // members from live values, so its data should be reachable
+  // from somewhere else.  Also sometimes it holds NULL and I wonder
+  // whether that can crash the GC.
+
 #ifdef DO_STACK_CHECK
 # define SCHEME_CURRENT_PROCESS p
 # include "mzstkchk.h"
@@ -2935,6 +2942,8 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	}
       }
 
+      name_and_loc = data->name;
+
       obj = data->body;
 
       if (SCHEME_RPAIRP(obj)) {
@@ -2952,18 +2961,18 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
         pm = p->cont_mark_stack_segments[segpos] + pos;
 
 	if (!pm->cache)
-	  pm->val = data->name; 
+	  pm->val = name_and_loc;
 	else {
 	  /* Need to clear caches, so do it the slow way */
 	  UPDATE_THREAD_RSPTR_FOR_PROC_MARK();
-	  pmstack = scheme_set_cont_mark(scheme_stack_dump_key, data->name); 
+	  pmstack = scheme_set_cont_mark(scheme_stack_dump_key, name_and_loc);
 	}
       } else { 
 	/* Allocate a new mark record: */
 	intptr_t segpos = ((intptr_t)MZ_CONT_MARK_STACK) >> SCHEME_LOG_MARK_SEGMENT_SIZE;
 	if (segpos >= p->cont_mark_seg_count) {
 	  UPDATE_THREAD_RSPTR_FOR_PROC_MARK();
-	  pmstack = scheme_set_cont_mark(scheme_stack_dump_key, data->name); 
+	  pmstack = scheme_set_cont_mark(scheme_stack_dump_key, name_and_loc);
 	} else {
 	  intptr_t pos = ((intptr_t)MZ_CONT_MARK_STACK) & SCHEME_MARK_SEGMENT_MASK;
           GC_CAN_IGNORE Scheme_Cont_Mark *pm;
@@ -2976,11 +2985,13 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	  MZ_CONT_MARK_STACK++;
 
 	  pm->key = scheme_stack_dump_key;
-	  pm->val = data->name;
+	  pm->val = name_and_loc;
 	  pm->pos = MZ_CONT_MARK_POS;
 	  pm->cache = NULL;
 	}
       }
+
+      name_and_loc = NULL;
 
       goto eval_top;
     } else if (type == scheme_case_closure_type) {
