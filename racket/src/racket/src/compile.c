@@ -544,7 +544,7 @@ Scheme_Object *scheme_source_to_name(Scheme_Object *code)
   return NULL;
 }
 
-Scheme_Object *combine_name_with_srcloc(Scheme_Object *name, Scheme_Object *code, int src_based_name)
+Scheme_Located_Name *combine_name_with_srcloc(Scheme_Object *name, Scheme_Object *code, int src_based_name)
 {
   Scheme_Stx *cstx = (Scheme_Stx *)code;
 
@@ -577,9 +577,10 @@ Scheme_Object *combine_name_with_srcloc(Scheme_Object *name, Scheme_Object *code
   return name;
 }
 
-Scheme_Object *scheme_build_closure_name(Scheme_Object *code, Scheme_Comp_Env *env)
+Scheme_Located_Name *scheme_build_closure_name(Scheme_Object *code,
+                                               Scheme_Comp_Env *env)
 {
-  Scheme_Object *name;
+  Scheme_Located_Name *name;
 
   name = scheme_stx_property(code, inferred_name_symbol, NULL);
   name = simplify_inferred_name(name);
@@ -607,7 +608,8 @@ make_lambda(Scheme_Comp_Env *env, Scheme_Object *code,
             Scheme_Compile_Info *rec, int drec)
 /* Compiles a `lambda' expression */
 {
-  Scheme_Object *allparams, *params, *forms, *param, *name, *scope;
+  Scheme_Object *allparams, *params, *forms, *param, *scope;
+  Scheme_Located_Name *name;
   Scheme_Lambda *lam;
   Scheme_Compile_Info lrec;
   Scheme_Comp_Env *frame;
@@ -1682,7 +1684,8 @@ static Scheme_Object *
 case_lambda_compile (Scheme_Object *form, Scheme_Comp_Env *env, 
 		    Scheme_Compile_Info *rec, int drec)
 {
-  Scheme_Object *list, *last, *c, *orig_form = form, *name;
+  Scheme_Object *list, *last, *c, *orig_form = form;
+  Scheme_Located_Name *name;
   Scheme_Case_Lambda *cl;
   int i, count = 0;
   Scheme_Compile_Info *recs;

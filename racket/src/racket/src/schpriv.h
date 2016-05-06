@@ -1598,6 +1598,11 @@ typedef struct Scheme_IR_Local
 #define SCHEME_VAR_MODE_OPTIMIZE     3
 #define SCHEME_VAR_MODE_RESOLVE      4
 
+typedef Scheme_Object Scheme_Located_Name;
+/* Type for names (symbols) that optionally carry a location information,
+   such as the one carried by function closures:
+     name or (vector name src line col pos span generated?) */
+
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
   mzshort num_args; /* doesn't include rator, so arguments are at args[1]...args[num_args] */
@@ -1823,7 +1828,7 @@ typedef struct {
   Scheme_Object *array[mzFLEX_ARRAY_DECL];
 } Scheme_Case_Lambda;
 /* If count is not 0, then check array[0] for LAMBDA_IS_METHOD.
-   Otherwise, name is a boxed symbol (or #f) to indicate a method. */
+   Otherwise, name is a boxed Scheme_Located_Name (or #f) to indicate a method. */
 
 #define scheme_make_prim_w_arity2(f, n, mina, maxa, minr, maxr) \
   scheme_make_prim_w_everything(f, 1, n, mina, maxa, 0, minr, maxr)
@@ -2937,7 +2942,7 @@ typedef struct Scheme_Lambda
                              total size = closure_size + (closure_size + num_params) * LAMBDA_TYPE_BITS_PER_ARG */
   };
   Scheme_Object *body;
-  Scheme_Object *name; /* name or (vector name src line col pos span generated?) */
+  Scheme_Located_Name *name;
   void *tl_map; /* fixnum or bit array (as array of `int's) indicating which globals+lifts in prefix are used */
 #ifdef MZ_USE_JIT
   union {

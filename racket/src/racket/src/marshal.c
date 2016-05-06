@@ -94,7 +94,7 @@ static Scheme_Object *read_top_level_require(Scheme_Object *obj);
 static Scheme_Object *write_top_level_require(Scheme_Object *obj);
 
 static Scheme_Object *ht_to_vector(Scheme_Object *ht, int delay);
-static Scheme_Object *closure_marshal_name(Scheme_Object *name);
+static Scheme_Object *closure_marshal_name(Scheme_Located_Name *name);
 
 void scheme_init_marshal(Scheme_Env *env) 
 {
@@ -758,7 +758,7 @@ static int not_relative_path(Scheme_Object *p, Scheme_Hash_Table *cache)
   return 0;
 }
 
-static Scheme_Object *closure_marshal_name(Scheme_Object *name)
+static Scheme_Object *closure_marshal_name(Scheme_Located_Name *name)
 {
   if (name) {
     if (SCHEME_VECTORP(name)) {
