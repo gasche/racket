@@ -571,7 +571,7 @@ Scheme_Located_Name *combine_name_with_srcloc(Scheme_Object *name, Scheme_Object
       SCHEME_VEC_ELS(vec)[5] = scheme_false;
     SCHEME_VEC_ELS(vec)[6] = (src_based_name ? scheme_true : scheme_false);
 
-    assert(SCHEME_LOCATED_NAMEP(vec));
+    CHECK_NAME(vec);
     
     return vec;
   }

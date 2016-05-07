@@ -1611,13 +1611,14 @@ typedef Scheme_Object Scheme_Located_Name;
      && (SAME_OBJ((name),GHOSTNAME) \
          || (SCHEME_VECTORP((name)) && SCHEME_VEC_SIZE((name)) == 7)))
 
-#define CHECK_APP_NAME(app) ((void)0)//(assert(SCHEME_LOCATED_NAMEP((app)->name)))
+#define CHECK_NAME(name) (assert(SCHEME_LOCATED_NAMEP((name))))
+#define CHECK_APP_NAME(app) (CHECK_NAME((app)->name))
 #define WITH_CHECK_APP_NAME(app) (CHECK_APP_NAME((app)), (app))
 
 #define APPNAME
 #ifdef APPNAME
 #define GETNAME(app) (WITH_CHECK_APP_NAME(app)->name)
-#define SETNAME(app, n) (/* assert(SCHEME_LOCATED_NAMEP(n)),  */(app)->name = (n))
+#define SETNAME(app, n) (assert(SCHEME_LOCATED_NAMEP(n)),(app)->name = (n))
 #else
 #define GETNAME(app) NULL
 #define SETNAME(app, n) ((void)0)
@@ -1701,7 +1702,7 @@ inline int scheme_valid_if_app(Scheme_Object *obj)
     }
 }
 
-#define CHECK_IF_APP(obj) ((void)0)//(assert(scheme_valid_if_app(obj)))
+#define CHECK_IF_APP(obj) (assert(scheme_valid_if_app(obj)))
 #define WITH_CHECK_IF_APP(obj) (CHECK_IF_APP((obj)), (obj))
 
 typedef struct {
