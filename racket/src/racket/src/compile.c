@@ -605,6 +605,22 @@ Scheme_Located_Name *scheme_build_closure_name(Scheme_Object *code,
   return name;
 }
 
+Scheme_Located_Name *scheme_build_application_name(Scheme_Object *code,
+                                                   Scheme_Comp_Env *env)
+{
+  char *buf = "app";
+  Scheme_Object *name;
+  Scheme_Located_Name *located_name;
+
+  assert(SCHEME_STXP(code));
+  name = scheme_intern_exact_symbol(buf, strlen(buf));
+  located_name = combine_name_with_srcloc(name, code, 1);
+  if (!SCHEME_VECTORP(located_name))
+      located_name = GHOSTNAME;
+  CHECK_NAME(located_name);
+  return located_name;
+}
+
 static Scheme_Object *
 make_lambda(Scheme_Comp_Env *env, Scheme_Object *code,
             Scheme_Compile_Info *rec, int drec)
@@ -4233,7 +4249,8 @@ static Scheme_Object *compile_application(Scheme_Object *form, Scheme_Comp_Env *
   env->value_name = NULL;
 
   scheme_compile_rec_done_local(rec, drec);
-  name = scheme_build_closure_name(form, env);
+  name = scheme_build_application_name(form, env);
+  CHECK_NAME(name);
   form = inner_compile_list(form, scheme_no_defines(env), rec, drec, 1);
 
   result = scheme_make_application(form, name, NULL);
