@@ -439,6 +439,7 @@ static Scheme_Object *letrec_check_application(Scheme_Object *o, Letrec_Check_Fr
   Scheme_Object *val;
 
   app = (Scheme_App_Rec *)o;
+  CHECK_APP_NAME(app);
 
   /* we'll have to check the rator and all the arguments */
   n = 1 + app->num_args;
@@ -464,6 +465,7 @@ static Scheme_Object *letrec_check_application2(Scheme_Object *o, Letrec_Check_F
   Scheme_Object *val;
 
   app = (Scheme_App2_Rec *)o;
+  CHECK_APP_NAME(app);
     
   if (is_effect_free_prim(app->rator)) {
     /* an immediate prim cannot call anything among its arguments */
@@ -486,6 +488,7 @@ static Scheme_Object *letrec_check_application3(Scheme_Object *o, Letrec_Check_F
   Scheme_Object *val;
 
   app = (Scheme_App3_Rec *)o;
+  CHECK_APP_NAME(app);
 
   if (is_effect_free_prim(app->rator)) {
     /* an immediate prim cannot call anything among its arguments */
@@ -1009,6 +1012,8 @@ static Scheme_Object *letrec_check_k(void)
 static Scheme_Object *letrec_check_expr(Scheme_Object *expr, Letrec_Check_Frame *frame, Scheme_Object *pos)
 {
   int type;
+
+  CHECK_IF_APP(expr);
 
 #ifdef DO_STACK_CHECK
 # include "mzstkchk.h"

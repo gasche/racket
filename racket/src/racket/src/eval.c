@@ -3285,6 +3285,7 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 	  app = (Scheme_App_Rec *)obj;
 	  num_rands = app->num_args;
 	  
+          CHECK_APP_NAME(app);
           #ifdef EVALAPPNAME
           name_and_loc = GETNAME(app);
           #endif
@@ -3388,6 +3389,7 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 
 	  app = (Scheme_App2_Rec *)obj;
 	  
+          CHECK_APP_NAME(app);
           #ifdef EVALAPPNAME
           name_and_loc = GETNAME(app);
           #endif
@@ -3471,6 +3473,7 @@ scheme_do_eval(Scheme_Object *obj, int num_rands, Scheme_Object **rands,
 
 	  app = (Scheme_App3_Rec *)obj;
 
+          CHECK_APP_NAME(app);
           #ifdef EVALAPPNAME
           name_and_loc = GETNAME(app);
           #endif
@@ -4111,6 +4114,7 @@ static Scheme_Object *optimize_resolve_expr(Scheme_Object* o,
   if (!(comp_flags & COMP_CAN_INLINE))
     scheme_optimize_info_never_inline(oi);
   o = scheme_optimize_expr(o, oi, 0);
+  CHECK_IF_APP(o);
 
   rp = scheme_resolve_prefix(0, cp, src_insp_desc);
   ri = scheme_resolve_info_create(rp);
@@ -4118,10 +4122,13 @@ static Scheme_Object *optimize_resolve_expr(Scheme_Object* o,
   scheme_enable_expression_resolve_lifts(ri);
 
   o = scheme_resolve_expr(o, ri);
+  CHECK_IF_APP(o);
   max_let_depth = scheme_resolve_info_max_let_depth(ri);
   o = scheme_sfs(o, NULL, max_let_depth);
+  CHECK_IF_APP(o);
 
   o = scheme_merge_expression_resolve_lifts(o, rp, ri);
+  CHECK_IF_APP(o);
 
   rp = scheme_remap_prefix(rp, ri);
 
@@ -4331,7 +4338,7 @@ static void *compile_k(void)
       }
 
       if (validate_compile_result) {
-        scheme_validate_code(NULL, top->code,
+          scheme_validate_code(NULL, top->code,
                              top->max_let_depth,
                              top->prefix->num_toplevels,
                              top->prefix->num_stxes,

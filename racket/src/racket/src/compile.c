@@ -570,6 +570,8 @@ Scheme_Located_Name *combine_name_with_srcloc(Scheme_Object *name, Scheme_Object
     else
       SCHEME_VEC_ELS(vec)[5] = scheme_false;
     SCHEME_VEC_ELS(vec)[6] = (src_based_name ? scheme_true : scheme_false);
+
+    assert(SCHEME_LOCATED_NAMEP(vec));
     
     return vec;
   }
@@ -4071,6 +4073,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v,
     v = SCHEME_CDR(v);
     app->rand = SCHEME_CAR(v);
     
+    CHECK_APP_NAME(app);
     return (Scheme_Object *)app;
   } else if (n == 3) {
     Scheme_App3_Rec *app;
@@ -4085,6 +4088,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v,
     v = SCHEME_CDR(v);
     app->rand2 = SCHEME_CAR(v);
 
+    CHECK_APP_NAME(app);
     return (Scheme_Object *)app;
   } else {
     Scheme_App_Rec *app;
@@ -4096,6 +4100,7 @@ Scheme_Object *scheme_make_application(Scheme_Object *v,
       app->args[i] = SCHEME_CAR(v);
     }
 
+    CHECK_APP_NAME(app);
     return (Scheme_Object *)app;
   }
 }
@@ -4122,7 +4127,7 @@ Scheme_App_Rec *scheme_malloc_application(int n)
     app = (Scheme_App_Rec *)scheme_malloc_tagged(size);
   }
 
-  SETNAME(app, NULL); // name will be set by the caller
+  app->name = NULL; // name will be set by the caller
 
   app->iso.so.type = scheme_application_type;
 

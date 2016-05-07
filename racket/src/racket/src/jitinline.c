@@ -204,7 +204,7 @@ int scheme_inlined_binary_prim(Scheme_Object *o, Scheme_Object *_app, mz_jit_sta
 int scheme_inlined_nary_prim(Scheme_Object *o, Scheme_Object *_app, mz_jit_state *jitter)
 {
   int n = ((Scheme_App_Rec *)_app)->num_args;
-
+  CHECK_IF_APP(_app);
   return ((SCHEME_PRIMP(o)
            && (SCHEME_PRIM_PROC_OPT_FLAGS(o) & SCHEME_PRIM_IS_NARY_INLINED)
            && (n >= ((Scheme_Primitive_Proc *)o)->mina)

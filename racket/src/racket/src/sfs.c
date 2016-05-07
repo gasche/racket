@@ -107,7 +107,7 @@ Scheme_Object *scheme_sfs(Scheme_Object *o, SFS_Info *info, int max_let_depth)
   info->stackpos = init;
   o = scheme_sfs_expr(o, info, -1);
 
-  return o;
+  return WITH_CHECK_IF_APP(o);
 }
 
 SFS_Info *scheme_new_sfs_info(int depth)

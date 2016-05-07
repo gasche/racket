@@ -2201,6 +2201,8 @@ int scheme_generate_nary_arith(mz_jit_state *jitter, Scheme_App_Rec *app,
 # define mzSET_USE_FL(x) /* empty */
 #endif
 
+  CHECK_APP_NAME(app);
+
   if ((arith == ARITH_AND)
       || (arith == ARITH_IOR)
       || (arith == ARITH_XOR)) {

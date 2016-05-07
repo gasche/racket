@@ -5516,7 +5516,7 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
       scheme_ill_formed_code(port);
   }
 
-  return v;
+  return WITH_CHECK_IF_APP(v);
 }
 
 static Scheme_Object *read_compact_list(int c, int proper, int use_stack, CPort *port)

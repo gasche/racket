@@ -97,7 +97,7 @@ small_atomic_obj {
 }
 
 app_rec {
-  Scheme_App_Rec *r = (Scheme_App_Rec *)p;
+  Scheme_App_Rec *r = WITH_CHECK_APP_NAME((Scheme_App_Rec *)p);
 
  mark:
   int i = r->num_args + 1;
@@ -113,7 +113,7 @@ app_rec {
 
 app2_rec {
  mark:
-  Scheme_App2_Rec *r = (Scheme_App2_Rec *)p;
+  Scheme_App2_Rec *r = WITH_CHECK_APP_NAME((Scheme_App2_Rec *)p);
   gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand, gc);
@@ -124,7 +124,7 @@ app2_rec {
 
 app3_rec {
  mark:
-  Scheme_App3_Rec *r = (Scheme_App3_Rec *)p;
+  Scheme_App3_Rec *r = WITH_CHECK_APP_NAME((Scheme_App3_Rec *)p);
   gcMARK2(r->name, gc);
   gcMARK2(r->rator, gc);
   gcMARK2(r->rand1, gc);

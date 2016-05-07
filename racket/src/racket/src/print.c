@@ -3188,6 +3188,7 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
       int i;
 
       app = (Scheme_App_Rec *)obj;
+      CHECK_APP_NAME(app);
 
       if (app->num_args < CPT_RANGE(SMALL_APPLICATION)) {
 	unsigned char s[1];
@@ -3208,6 +3209,7 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
       unsigned char s[1];
 
       app = (Scheme_App2_Rec *)obj;
+      CHECK_APP_NAME(app);
 
       s[0] = CPT_SMALL_APPLICATION_START + 1;
       print_this_string(pp, (char *)s, 0, 1);
@@ -3221,6 +3223,7 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
       unsigned char s[1];
 
       app = (Scheme_App3_Rec *)obj;
+      CHECK_APP_NAME(app);
 
       s[0] = CPT_SMALL_APPLICATION_START + 2;
       print_this_string(pp, (char *)s, 0, 1);

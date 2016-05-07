@@ -378,6 +378,8 @@ static int is_short(Scheme_Object *obj, int fuel)
       Scheme_App_Rec *app = (Scheme_App_Rec *)obj;
       int i;
 
+      CHECK_APP_NAME(app);
+
       fuel -= app->num_args;
       for (i = app->num_args + 1; i--; ) {
 	fuel = is_short(app->args[i], fuel);
@@ -387,6 +389,7 @@ static int is_short(Scheme_Object *obj, int fuel)
   case scheme_application2_type:
     {
       Scheme_App2_Rec *app = (Scheme_App2_Rec *)obj;
+      CHECK_APP_NAME(app);
       fuel -= 2;
       fuel = is_short(app->rator, fuel);
       return is_short(app->rand, fuel);
@@ -394,6 +397,7 @@ static int is_short(Scheme_Object *obj, int fuel)
   case scheme_application3_type:
     {
       Scheme_App3_Rec *app = (Scheme_App3_Rec *)obj;
+      CHECK_APP_NAME(app);
       fuel -= 3;
       fuel = is_short(app->rator, fuel);
       fuel = is_short(app->rand1, fuel);

@@ -1524,6 +1524,7 @@ static int validate_expr(Mz_CPort *port, Scheme_Object *expr,
       Scheme_App_Rec *app = (Scheme_App_Rec *)expr;
       int i, n, r;
 
+      CHECK_APP_NAME(app);
       check_typed(expr, need_local_type, port);
 
       n = app->num_args + 1;
@@ -1555,6 +1556,7 @@ static int validate_expr(Mz_CPort *port, Scheme_Object *expr,
       Scheme_App2_Rec *app = (Scheme_App2_Rec *)expr;
       int r;
 
+      CHECK_APP_NAME(app);
       check_typed(expr, need_local_type, port);
       
       delta -= 1;
@@ -1595,6 +1597,7 @@ static int validate_expr(Mz_CPort *port, Scheme_Object *expr,
       Scheme_App3_Rec *app = (Scheme_App3_Rec *)expr;
       int r;
 
+      CHECK_APP_NAME(app);
       check_typed(expr, need_local_type, port);
       
       delta -= 2;

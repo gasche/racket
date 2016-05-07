@@ -44,6 +44,7 @@ static Scheme_Object *jit_application(Scheme_Object *o)
   int i, n, size;
 
   app = (Scheme_App_Rec *)o;
+  CHECK_APP_NAME(app);
   n = app->num_args + 1;
 
   for (i = 0; i < n; i++) {

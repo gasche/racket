@@ -249,7 +249,8 @@ static Scheme_Object *resolve_application(Scheme_Object *o, Resolve_Info *orig_i
     et = scheme_get_eval_type(app->args[i]);
     ((char *)app XFORM_OK_PLUS devals)[i] = et;
   }
-
+  
+  CHECK_APP_NAME(app);
   return (Scheme_Object *)app;
 }
 
@@ -343,6 +344,7 @@ static Scheme_Object *resolve_application2(Scheme_Object *o, Resolve_Info *orig_
     }
   }
   
+  CHECK_APP_NAME(app);
   return (Scheme_Object *)app;
 }
 
@@ -441,6 +443,7 @@ static Scheme_Object *resolve_application3(Scheme_Object *o, Resolve_Info *orig_
 
   merge_resolve(orig_info, info);
 
+  CHECK_APP_NAME(app);
   return (Scheme_Object *)app;
 }
 
@@ -2266,12 +2269,15 @@ Scheme_Object *scheme_resolve_expr(Scheme_Object *expr, Resolve_Info *info)
                                   : 0));
       }
     }
-  case scheme_application_type:
+  case scheme_application_type: {
     return resolve_application(expr, info, 0);
-  case scheme_application2_type:
+  }
+  case scheme_application2_type: {
     return resolve_application2(expr, info, 0);
-  case scheme_application3_type:
+  }
+  case scheme_application3_type: {
     return resolve_application3(expr, info, 0);
+  }
   case scheme_sequence_type:
   case scheme_begin0_sequence_type:
   case scheme_splice_sequence_type:
@@ -2555,9 +2561,9 @@ Scheme_Object *scheme_merge_expression_resolve_lifts(Scheme_Object *expr, Resolv
     }
     s->array[i] = expr;
 
-    return (Scheme_Object *)s;
+    return WITH_CHECK_IF_APP((Scheme_Object *)s);
   } else
-    return expr;
+    return WITH_CHECK_IF_APP(expr);
 }
 
 void scheme_resolve_info_enforce_const(Resolve_Info *ri, int enforce_const)

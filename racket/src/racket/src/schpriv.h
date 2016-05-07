@@ -22,6 +22,7 @@
 
 #include "scheme.h"
 #include "longdouble/longdouble.h"
+#include <assert.h>
 
 #ifdef CIL_ANALYSIS
 #define ROSYM          __attribute__((__ROSYM__))
@@ -40,7 +41,7 @@
 #endif
 
 #ifdef MZ_CHECK_ASSERTS
-# include <assert.h>
+//# include <assert.h>
 # define MZ_ASSERT(x) assert(x)
 #else
 # define MZ_ASSERT(x) /* empty */
@@ -1603,15 +1604,25 @@ typedef Scheme_Object Scheme_Located_Name;
    such as the one carried by function closures:
      name or (vector name src line col pos span generated?) */
 
+#define GHOSTNAME scheme_null
+
+#define SCHEME_LOCATED_NAMEP(name) \
+    (name != NULL \
+     && (SAME_OBJ((name),GHOSTNAME) \
+         || (SCHEME_VECTORP((name)) && SCHEME_VEC_SIZE((name)) == 7)))
+
+#define CHECK_APP_NAME(app) ((void)0)//(assert(SCHEME_LOCATED_NAMEP((app)->name)))
+#define WITH_CHECK_APP_NAME(app) (CHECK_APP_NAME((app)), (app))
+
 #define APPNAME
 #ifdef APPNAME
-#define GETNAME(app) (app)->name
-#define SETNAME(app, n) ((app)->name = (n))
+#define GETNAME(app) (WITH_CHECK_APP_NAME(app)->name)
+#define SETNAME(app, n) (/* assert(SCHEME_LOCATED_NAMEP(n)),  */(app)->name = (n))
 #else
 #define GETNAME(app) NULL
 #define SETNAME(app, n) ((void)0)
 #endif
-#define GHOSTNAME scheme_null
+
 
 typedef struct {
   Scheme_Inclhash_Object iso; /* keyex used for flags */
@@ -1622,6 +1633,7 @@ typedef struct {
   Scheme_Object *args[mzFLEX_ARRAY_DECL];
   /* After array of f & args, array of chars for eval type */
 } Scheme_App_Rec;
+
 
 #define SCHEME_APPN_FLAGS(app) MZ_OPT_HASH_KEY(&(app)->iso)
 /* For all application types, throgh optimization, the low bits of the flags
@@ -1674,6 +1686,23 @@ typedef struct {
   Scheme_Object *rand1;
   Scheme_Object *rand2;
 } Scheme_App3_Rec;
+
+inline int scheme_valid_if_app(Scheme_Object *obj)
+{
+    switch (SCHEME_TYPE(obj)) {
+    case scheme_application_type:
+        return (SCHEME_LOCATED_NAMEP(((Scheme_App_Rec *)obj)->name));
+    case scheme_application2_type:
+        return SCHEME_LOCATED_NAMEP(((Scheme_App2_Rec *)obj)->name);
+    case scheme_application3_type:
+        return SCHEME_LOCATED_NAMEP(((Scheme_App3_Rec *)obj)->name);
+    default:
+        return 1;
+    }
+}
+
+#define CHECK_IF_APP(obj) ((void)0)//(assert(scheme_valid_if_app(obj)))
+#define WITH_CHECK_IF_APP(obj) (CHECK_IF_APP((obj)), (obj))
 
 typedef struct {
   Scheme_Object so;

@@ -3267,6 +3267,7 @@ static Scheme_Object *finish_optimize_any_application(Scheme_Object *app, Scheme
     info->escapes = 1;
   }
 
+  CHECK_IF_APP(app);
   return app;
 }
 
@@ -3366,6 +3367,7 @@ static Scheme_Object *finish_optimize_application(Scheme_App_Rec *app, Optimize_
   flags = appn_flags(app->args[0], info);
   SCHEME_APPN_FLAGS(app) |= flags;
 
+  CHECK_APP_NAME(app);
   return finish_optimize_any_application((Scheme_Object *)app, app->args[0], app->num_args,
                                          GETNAME(app), info, context);
 }
@@ -3491,6 +3493,7 @@ static Scheme_Object *optimize_application2(Scheme_Object *o, Optimize_Info *inf
   Optimize_Info_Sequence info_seq;
 
   app = (Scheme_App2_Rec *)o;
+  CHECK_APP_NAME(app);
 
   le = check_app_let_rator(o, app->rator, info, 1, context);
   if (le)
@@ -3554,6 +3557,8 @@ static Scheme_Object *finish_optimize_application2(Scheme_App2_Rec *app, Optimiz
   int flags;
   Scheme_Object *rator =  app->rator;
   Scheme_Object *rand, *inside = NULL, *alt;
+
+  CHECK_APP_NAME(app);
 
   info->size += 1;
 
@@ -3805,6 +3810,7 @@ static Scheme_Object *finish_optimize_application2(Scheme_App2_Rec *app, Optimiz
   flags = appn_flags(rator, info);
   SCHEME_APPN_FLAGS(app) |= flags;
 
+  CHECK_APP_NAME(app);
   return finish_optimize_any_application((Scheme_Object *)app, rator, 1, GETNAME(app), info, context);
 }
 
@@ -4246,7 +4252,8 @@ static Scheme_Object *finish_optimize_application3(Scheme_App3_Rec *app, Optimiz
   flags = appn_flags(app->rator, info);
   SCHEME_APPN_FLAGS(app) |= flags;
 
-  return finish_optimize_any_application((Scheme_Object *)app, app->rator, 2,
+ CHECK_APP_NAME(app);
+ return finish_optimize_any_application((Scheme_Object *)app, app->rator, 2,
                                          GETNAME(app), info, context);
 }
 
@@ -8206,6 +8213,8 @@ Scheme_Object *scheme_optimize_expr(Scheme_Object *expr, Optimize_Info *info, in
 {
   Scheme_Type type = SCHEME_TYPE(expr);
 
+  CHECK_IF_APP(expr);
+
 #ifdef DO_STACK_CHECK
 # include "mzstkchk.h"
   {
@@ -8312,11 +8321,11 @@ Scheme_Object *scheme_optimize_expr(Scheme_Object *expr, Optimize_Info *info, in
       return expr;
     }
   case scheme_application_type:
-    return optimize_application(expr, info, context);
+      return optimize_application(expr, info, context);
   case scheme_application2_type:
-    return optimize_application2(expr, info, context);
+      return optimize_application2(expr, info, context);
   case scheme_application3_type:
-    return optimize_application3(expr, info, context);
+      return optimize_application3(expr, info, context);
   case scheme_sequence_type:
   case scheme_splice_sequence_type:
     return optimize_sequence(expr, info, context, 1);
