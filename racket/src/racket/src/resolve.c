@@ -213,6 +213,7 @@ static Scheme_Object *resolve_application(Scheme_Object *o, Resolve_Info *orig_i
       int m;
       m = SCHEME_VEC_SIZE(additions) - 1;
       app2 = scheme_malloc_application(n + m);
+      SETNAME(app2, GETNAME(app));
       for (i = 0; i < m; i++) {
         arg = resolve_info_lift_added(orig_info, SCHEME_VEC_ELS(additions)[i+1], n - 1 + m);
         app2->args[i + 1] = arg;
@@ -244,6 +245,7 @@ static Scheme_Object *resolve_application(Scheme_Object *o, Resolve_Info *orig_i
 
   merge_resolve(orig_info, info);
 
+  CHECK_APP_NAME(app);
   for (i = 0; i < n; i++) {
     char et;
     et = scheme_get_eval_type(app->args[i]);
@@ -279,6 +281,7 @@ static Scheme_Object *resolve_application2(Scheme_Object *o, Resolve_Info *orig_
   Scheme_Object *le, *arg;
 
   app = (Scheme_App2_Rec *)o;
+  CHECK_APP_NAME(app);
 
   if (!already_resolved_arg_count) {
     /* Check whether this is an application of a converted closure: */
@@ -297,6 +300,7 @@ static Scheme_Object *resolve_application2(Scheme_Object *o, Resolve_Info *orig_
         Scheme_App_Rec *app2;
         int i;
         app2 = scheme_malloc_application(2 + m);
+        SETNAME(app2, GETNAME(app));
         for (i = 0; i < m; i++) {
           arg = resolve_info_lift_added(orig_info, SCHEME_VEC_ELS(additions)[i+1], 1 + m);
           app2->args[i + 1] = arg;
@@ -308,6 +312,7 @@ static Scheme_Object *resolve_application2(Scheme_Object *o, Resolve_Info *orig_
       } else {
         Scheme_App3_Rec *app2;
         app2 = MALLOC_ONE_TAGGED(Scheme_App3_Rec);
+        SETNAME(app2, GETNAME(app));
         app2->iso.so.type = scheme_application3_type;
         app2->rator = rator;
         arg = resolve_info_lift_added(orig_info, SCHEME_VEC_ELS(additions)[1], 1 + 1);
@@ -374,6 +379,7 @@ static Scheme_Object *resolve_application3(Scheme_Object *o, Resolve_Info *orig_
   Scheme_Object *le;
 
   app = (Scheme_App3_Rec *)o;
+  CHECK_APP_NAME(app);
 
   if (!already_resolved_arg_count) {
     /* Check whether this is an application of a converted closure: */
@@ -389,6 +395,7 @@ static Scheme_Object *resolve_application3(Scheme_Object *o, Resolve_Info *orig_
         Scheme_App_Rec *app2;
         Scheme_Object *arg;
         app2 = scheme_malloc_application(3 + m);
+        SETNAME(app2, GETNAME(app));
         for (i = 0; i < m; i++) {
           arg = resolve_info_lift_added(orig_info, SCHEME_VEC_ELS(additions)[i+1], 2 + m);
           app2->args[i + 1] = arg;
@@ -4217,6 +4224,7 @@ static Scheme_Object *unresolve_expr(Scheme_Object *e, Unresolve_Info *ui, int a
         Scheme_App_Rec *app;
         LOG_UNRESOLVE(printf("local unbox: %d (stack pos %d)\n", SCHEME_LOCAL_POS(e), ui->stack_pos));
         app = scheme_malloc_application(1);
+        SETNAME(app, GHOSTNAME);
         app->args[0] = (Scheme_Object *)var;
         return (Scheme_Object *)app;
       }
@@ -4259,6 +4267,7 @@ static Scheme_Object *unresolve_expr(Scheme_Object *e, Unresolve_Info *ui, int a
       }
 
       app2 = scheme_malloc_application(app->num_args+1);
+      SETNAME(app2, GETNAME(app));
 
       for (i = app->num_args + 1; i--; ) {
         a = unresolve_expr(app->args[i], ui, !i);

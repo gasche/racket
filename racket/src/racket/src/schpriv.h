@@ -1637,7 +1637,7 @@ typedef struct {
 
 
 #define SCHEME_APPN_FLAGS(app) MZ_OPT_HASH_KEY(&(app)->iso)
-/* For all application types, throgh optimization, the low bits of the flags
+/* For all application types, through optimization, the low bits of the flags
    are used to hold an index for an application indicate that it's the Nth
    application of an identifier, which is useful to type inference.
    The same bits are used after resolve for app2 and app3 to indicate
