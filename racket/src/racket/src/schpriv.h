@@ -1604,6 +1604,9 @@ typedef Scheme_Object Scheme_Located_Name;
    such as the one carried by function closures:
      name or (vector name src line col pos span generated?) */
 
+/* instead of using GHOSTNAME it is better to build your own location-specific
+   ghost name using the scheme_make_ghost_name function, as it then easier
+   when looking at traces to tell where the loss of precision comes from */
 #define GHOSTNAME scheme_null
 
 #define SCHEME_LOCATED_NAMEP(name) \
@@ -1617,8 +1620,8 @@ typedef Scheme_Object Scheme_Located_Name;
 
 #define APPNAME
 #ifdef APPNAME
-#define GETNAME(app) (WITH_CHECK_APP_NAME(app)->name)
-#define SETNAME(app, n) (assert(SCHEME_LOCATED_NAMEP(n)),(app)->name = (n))
+#define GETNAME(app) ((app)->name)
+#define SETNAME(app, n) ((app)->name = (n))
 #else
 #define GETNAME(app) NULL
 #define SETNAME(app, n) ((void)0)
@@ -3574,6 +3577,8 @@ Scheme_Object *scheme_make_application(Scheme_Object *v, Scheme_Located_Name *na
 Scheme_Object *scheme_try_apply(Scheme_Object *f, Scheme_Object *args, Optimize_Info *info);
 int scheme_is_foldable_prim(Scheme_Object *f);
 int scheme_eq_testable_constant(Scheme_Object *v);
+
+Scheme_Located_Name *scheme_make_ghost_name(char *name);
 
 Scheme_Object *scheme_get_stop_expander(void);
 

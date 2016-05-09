@@ -1016,6 +1016,7 @@ static Scheme_Object *letrec_check_expr(Scheme_Object *expr, Letrec_Check_Frame 
   CHECK_IF_APP(expr);
 
 #ifdef DO_STACK_CHECK
+{
 # include "mzstkchk.h"
   {
     Scheme_Thread *p = scheme_current_thread;
@@ -1026,6 +1027,7 @@ static Scheme_Object *letrec_check_expr(Scheme_Object *expr, Letrec_Check_Frame 
 
     return scheme_handle_stack_overflow(letrec_check_k);
   }
+}
 #endif
 
   type = SCHEME_TYPE(expr);

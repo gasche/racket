@@ -5040,11 +5040,12 @@ static Scheme_Object *optimize_branch(Scheme_Object *o, Optimize_Info *info, int
   /* Try optimize: (if x #f #t) => (not x) */
   if (SCHEME_FALSEP(tb)
       && SAME_OBJ(fb, scheme_true)) {
+    Scheme_Located_Name *name;
     info->size -= 2;
+    /* TODO: pass loc info in branches as well */
+    name = scheme_make_ghost_name("optimize-branch:not");
     return make_optimize_prim_application2(scheme_not_proc, t,
-                                           GHOSTNAME, /* TODO: pass loc info
-                                                         in branches as well */
-                                           info, context);
+                                           name, info, context);
   }
 
   /* For test position, convert (if <expr> #t #f) to <expr> */
@@ -5060,8 +5061,10 @@ static Scheme_Object *optimize_branch(Scheme_Object *o, Optimize_Info *info, int
 
     nb = equivalent_exprs(tb, fb, then_info_init, else_info_init, context);
     if (nb) {
+      Scheme_Located_Name *name;
       info->size -= 1;
-      return make_discarding_first_sequence(t, nb, GHOSTNAME, info);
+      name = scheme_make_ghost_name("optimize-branch:if-merged-branches");
+      return make_discarding_first_sequence(t, nb, name, info);
     }
   }
 
@@ -5125,6 +5128,8 @@ static Scheme_Object *optimize_wcm(Scheme_Object *o, Optimize_Info *info, int co
   Scheme_Object *k, *v, *b;
   int init_vclock;
   Optimize_Info_Sequence info_seq;
+  Scheme_Located_Name *ghost_name;
+  ghost_name = scheme_make_ghost_name("optimize-wcm");
 
   optimize_info_seq_init(info, &info_seq);
 
@@ -5142,7 +5147,7 @@ static Scheme_Object *optimize_wcm(Scheme_Object *o, Optimize_Info *info, int co
   if (info->escapes) {
     optimize_info_seq_done(info, &info_seq);
     info->size += 1;
-    return make_discarding_first_sequence(k, v, GHOSTNAME, info);
+    return make_discarding_first_sequence(k, v, ghost_name, info);
   }
 
   /* The presence of a key can be detected by other expressions,
@@ -5166,7 +5171,7 @@ static Scheme_Object *optimize_wcm(Scheme_Object *o, Optimize_Info *info, int co
      a chaperone, no need to add the mark: */
   if (omittable_key(k, info)
       && scheme_omittable_expr(b, -1, 20, 0, info, info))
-    return make_discarding_first_sequence(v, b, GHOSTNAME, info);
+    return make_discarding_first_sequence(v, b, ghost_name, info);
 
   /* info->single_result is already set */
   info->preserves_marks = 0;
@@ -5188,7 +5193,7 @@ static Scheme_Object *optimize_wcm(Scheme_Object *o, Optimize_Info *info, int co
   if (SAME_TYPE(SCHEME_TYPE(wcm->body), scheme_with_cont_mark_type)
       && equivalent_exprs(wcm->key, ((Scheme_With_Continuation_Mark *)wcm->body)->key, NULL, NULL, 0)
       && scheme_omittable_expr(((Scheme_With_Continuation_Mark *)wcm->body)->val, 1, 20, 0, info, info))
-    return make_discarding_first_sequence(wcm->val, wcm->body, GHOSTNAME, info);
+    return make_discarding_first_sequence(wcm->val, wcm->body, ghost_name, info);
 
   return (Scheme_Object *)wcm;
 }
@@ -5410,8 +5415,10 @@ with_immed_mark_optimize(Scheme_Object *data, Optimize_Info *info, int context)
   val = scheme_optimize_expr(wcm->val, info, OPT_CONTEXT_SINGLED);
   optimize_info_seq_step(info, &info_seq);
   if (info->escapes) {
+    Scheme_Located_Name *ghost_name;
+    ghost_name = scheme_make_ghost_name("with_immed_mark_optimize");
     optimize_info_seq_done(info, &info_seq);
-    return make_discarding_first_sequence(key, val, GHOSTNAME, info);
+    return make_discarding_first_sequence(key, val, ghost_name, info);
   }
 
   optimize_info_seq_done(info, &info_seq);
@@ -6447,8 +6454,10 @@ static Scheme_Object *optimize_lets(Scheme_Object *form, Optimize_Info *info, in
       && (head->num_clauses == 1)) {
     irlv = (Scheme_IR_Let_Value *)head->body;
     if (SAME_OBJ((Scheme_Object *)irlv->vars[0], irlv->body)) {
+      Scheme_Located_Name *ghost_name;
+      ghost_name = scheme_make_ghost_name("optimize-lets:let-x-E-x");
       body = irlv->value;
-      body = ensure_single_value(body, GHOSTNAME);
+      body = ensure_single_value(body, ghost_name);
       return scheme_optimize_expr(body, info, context);
     }
   }
@@ -7174,14 +7183,16 @@ static Scheme_Object *optimize_lets(Scheme_Object *form, Optimize_Info *info, in
     }
 
     if (pre_body->count == 1) {
+      Scheme_Located_Name *ghost_name;
+      ghost_name = scheme_make_ghost_name("optimize-lets:pre_body");
       if (!SAME_OBJ((Scheme_Object *)pre_body->vars[0], body)
           && !found_escapes) {
-        body = make_discarding_sequence(pre_body->value, body, GHOSTNAME, info);
+        body = make_discarding_sequence(pre_body->value, body, ghost_name, info);
       } else {
         /* Special case for (let ([x E]) x) and (let ([x <error>]) #f) */
         found_escapes = 0; /* Perhaps the error is moved to the body. */
         body = pre_body->value;
-        body = ensure_single_value(body, GHOSTNAME);
+        body = ensure_single_value(body, ghost_name);
       }
 
       if (head->num_clauses == 1)
@@ -7196,6 +7207,8 @@ static Scheme_Object *optimize_lets(Scheme_Object *form, Optimize_Info *info, in
   if (!is_rec) {
     /* One last pass to peel off unused bindings */
     Scheme_Object *prev = NULL, *rhs;
+    Scheme_Located_Name *ghost_name;
+    ghost_name = scheme_make_ghost_name("optimize-lets:is_rec");
 
     body = head->body;
     for (i = head->num_clauses; i--; ) {
@@ -7212,7 +7225,7 @@ static Scheme_Object *optimize_lets(Scheme_Object *form, Optimize_Info *info, in
         seq->count = 2;
 
         rhs = pre_body->value;
-        rhs = ensure_single_value(rhs, GHOSTNAME);
+        rhs = ensure_single_value(rhs, ghost_name);
         seq->array[0] = rhs;
 
         head->count--;
@@ -8415,8 +8428,11 @@ Scheme_Object *scheme_optimize_expr(Scheme_Object *expr, Optimize_Info *info, in
       return case_lambda_optimize(expr, info, context);
   case scheme_begin0_sequence_type:
     return begin0_optimize(expr, info, context);
-  case scheme_apply_values_type:
-    return apply_values_optimize(expr, GHOSTNAME, info, context);
+  case scheme_apply_values_type: {
+    Scheme_Located_Name *ghost_name;
+    ghost_name = scheme_make_ghost_name("scheme_optimize_expr:scheme_apply_values_type");
+    return apply_values_optimize(expr, ghost_name, info, context);
+  }
   case scheme_with_immed_mark_type:
     return with_immed_mark_optimize(expr, info, context);
   case scheme_require_form_type:

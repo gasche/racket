@@ -606,19 +606,36 @@ Scheme_Located_Name *scheme_build_closure_name(Scheme_Object *code,
 }
 
 Scheme_Located_Name *scheme_build_application_name(Scheme_Object *code,
-                                                   Scheme_Comp_Env *env)
+                                                   char *name)
 {
-  char *buf = "app";
-  Scheme_Object *name;
+  Scheme_Object *symb;
   Scheme_Located_Name *located_name;
 
   assert(SCHEME_STXP(code));
-  name = scheme_intern_exact_symbol(buf, strlen(buf));
-  located_name = combine_name_with_srcloc(name, code, 1);
+  symb = scheme_intern_exact_symbol(name, strlen(name));
+  located_name = combine_name_with_srcloc(symb, code, 1);
   if (!SCHEME_VECTORP(located_name))
-      located_name = GHOSTNAME;
-  CHECK_NAME(located_name);
+    located_name = scheme_make_ghost_name(name);
   return located_name;
+}
+
+Scheme_Located_Name *scheme_make_ghost_name(char *name)
+{
+    Scheme_Object *symb, *vec, *src;
+
+    symb = scheme_intern_exact_symbol(name, strlen(name));
+    src = scheme_make_byte_string(name);
+    vec = scheme_make_vector(7, NULL);
+    SCHEME_VEC_ELS(vec)[0] = symb;
+    SCHEME_VEC_ELS(vec)[1] = src;
+    SCHEME_VEC_ELS(vec)[2] = scheme_make_integer(1); // line
+    SCHEME_VEC_ELS(vec)[3] = scheme_make_integer(2); // col-1
+    SCHEME_VEC_ELS(vec)[4] = scheme_make_integer(3); // poscstx->srcloc->pos);
+    SCHEME_VEC_ELS(vec)[5] = scheme_make_integer(4); // span
+    SCHEME_VEC_ELS(vec)[6] = scheme_true;
+
+    CHECK_NAME(vec);
+    return vec;
 }
 
 static Scheme_Object *
@@ -4249,7 +4266,7 @@ static Scheme_Object *compile_application(Scheme_Object *form, Scheme_Comp_Env *
   env->value_name = NULL;
 
   scheme_compile_rec_done_local(rec, drec);
-  name = scheme_build_application_name(form, env);
+  name = scheme_build_application_name(form, "compile-application");
   CHECK_NAME(name);
   form = inner_compile_list(form, scheme_no_defines(env), rec, drec, 1);
 

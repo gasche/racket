@@ -4006,8 +4006,11 @@ static Scheme_Object *unresolve_let_value(Scheme_Let_Value *lv, Unresolve_Info *
 
   if (var->is_ref_arg) {
     Scheme_App2_Rec *app2;
+    Scheme_Located_Name *name;
+
     app2 = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
-    SETNAME(app2, GHOSTNAME);
+    name = scheme_make_ghost_name("resolve:unresolve_let_value");
+    SETNAME(app2, name);
     app2->iso.so.type = scheme_application2_type;
     app2->rator = (Scheme_Object *)var;
     app2->rand = val;
@@ -4222,9 +4225,12 @@ static Scheme_Object *unresolve_expr(Scheme_Object *e, Unresolve_Info *ui, int a
       var = unresolve_lookup(ui, SCHEME_LOCAL_POS(e), as_rator);
       if (var->is_ref_arg) {
         Scheme_App_Rec *app;
+        Scheme_Located_Name *name;
+
         LOG_UNRESOLVE(printf("local unbox: %d (stack pos %d)\n", SCHEME_LOCAL_POS(e), ui->stack_pos));
+        name = scheme_make_ghost_name("unresolve:local_unbox_type");
         app = scheme_malloc_application(1);
-        SETNAME(app, GHOSTNAME);
+        SETNAME(app, name);
         app->args[0] = (Scheme_Object *)var;
         return (Scheme_Object *)app;
       }

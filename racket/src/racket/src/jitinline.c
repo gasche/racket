@@ -2505,9 +2505,12 @@ int scheme_generate_inlined_binary(mz_jit_state *jitter, Scheme_App3_Rec *app, i
 
   if (SCHEME_PRIMP(rator) && IS_NAMED_PRIM(rator, "ptr-ref")) {
     Scheme_App_Rec *app2;
+    Scheme_Located_Name *name;
+
     mz_rs_sync();
     app2 = scheme_malloc_application(3);
-    app2->name = GHOSTNAME;
+    name = scheme_make_ghost_name("inlined-binary:ptr-ref");
+    app2->name = name;
     app2->args[0] = app->rator;
     app2->args[1] = app->rand1;
     app2->args[2] = app->rand2;
