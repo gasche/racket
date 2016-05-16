@@ -2997,6 +2997,7 @@ static Scheme_Object *optimize_application(Scheme_Object *o, Optimize_Info *info
   Optimize_Info_Sequence info_seq;
 
   app = (Scheme_App_Rec *)o;
+  CHECK_APP_NAME(app);
 
   /* Check for (apply ... (list ...)) early: */
   le = direct_apply((Scheme_Object *)app, app->args[0], app->args[app->num_args],
@@ -3843,6 +3844,7 @@ static Scheme_Object *optimize_application3(Scheme_Object *o, Optimize_Info *inf
   Optimize_Info_Sequence info_seq;
 
   app = (Scheme_App3_Rec *)o;
+  CHECK_APP_NAME(app);
 
   if (SAME_OBJ(app->rator, scheme_check_not_undefined_proc)
       && SCHEME_SYMBOLP(app->rand2)) {

@@ -3199,6 +3199,9 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
 	print_compact_number(pp, app->num_args);
       }
 
+      assert(0);
+      print(GETNAME(app), notdisplay, 1, NULL, mt, pp);
+
       for (i = 0; i < app->num_args + 1; i++) {
 	closed = print(scheme_protect_quote(app->args[i]), notdisplay, 1, NULL, mt, pp);
       }
@@ -3214,6 +3217,9 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
       s[0] = CPT_SMALL_APPLICATION_START + 1;
       print_this_string(pp, (char *)s, 0, 1);
 
+      assert(0);
+      print(GETNAME(app), notdisplay, 1, NULL, mt, pp);
+
       print(scheme_protect_quote(app->rator), notdisplay, 1, NULL, mt, pp);
       closed = print(scheme_protect_quote(app->rand), notdisplay, 1, NULL, mt, pp);
     }
@@ -3227,6 +3233,9 @@ print(Scheme_Object *obj, int notdisplay, int compact, Scheme_Hash_Table *ht,
 
       s[0] = CPT_SMALL_APPLICATION_START + 2;
       print_this_string(pp, (char *)s, 0, 1);
+
+      assert(0);
+      print(GETNAME(app), notdisplay, 1, NULL, mt, pp);
 
       print(scheme_protect_quote(app->rator), notdisplay, 1, NULL, mt, pp);
       print(scheme_protect_quote(app->rand1), notdisplay, 1, NULL, mt, pp);

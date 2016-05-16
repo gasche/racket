@@ -5149,8 +5149,11 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
 	c = read_compact_number(port) + 1;
 
 	a = scheme_malloc_application(c);
-        name = scheme_make_ghost_name("read:CPT_APPLICATION");
+
+        name = read_compact(port, 1);
+        CHECK_NAME(name);
         SETNAME(a, name);
+
 	for (i = 0; i < c; i++) {
 	  v = read_compact(port, 1);
 	  a->args[i] = v;
@@ -5399,7 +5402,9 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
 	c = (ch - CPT_SMALL_APPLICATION_START) + 1;
 
 	a = scheme_malloc_application(c);
-        name = scheme_make_ghost_name("read:CPT_SMALL_APPLICATION_START");
+
+        name = read_compact(port, 1);
+        CHECK_NAME(name);
         SETNAME(a, name);
 
 	for (i = 0; i < c; i++) {
@@ -5418,10 +5423,12 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
 	Scheme_App2_Rec *app;
         Scheme_Located_Name *name;
 
-        name = scheme_make_ghost_name("read:CPT_SMALL_APPLICATION2");
 	app = MALLOC_ONE_TAGGED(Scheme_App2_Rec);
-        SETNAME(app, name);
 	app->iso.so.type = scheme_application2_type;
+
+        name = read_compact(port, 1);
+        CHECK_NAME(name);
+        SETNAME(app, name);
 
 	v = read_compact(port, 1);
 	app->rator = v;
@@ -5442,10 +5449,12 @@ static Scheme_Object *read_compact(CPort *port, int use_stack)
 	Scheme_App3_Rec *app;
         Scheme_Located_Name *name;
 
-        name = scheme_make_ghost_name("read:CPT_SMALL_APPLICATION3");
 	app = MALLOC_ONE_TAGGED(Scheme_App3_Rec);
-        SETNAME(app, name);
 	app->iso.so.type = scheme_application3_type;
+
+        name = read_compact(port, 1);
+        CHECK_NAME(name);
+        SETNAME(app, name);
 
 	v = read_compact(port, 1);
 	app->rator = v;
